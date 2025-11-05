@@ -23,6 +23,10 @@
             ],
             "styles": [
               "src/styles.scss"
+            ],
+            "externalDependencies": [
+              "onnxruntime-node",
+              "sharp"
             ]
           },
           "configurations": {
