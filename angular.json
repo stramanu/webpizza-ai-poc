@@ -24,9 +24,16 @@
             "styles": [
               "src/styles.scss"
             ],
-            "externalDependencies": [
+            "optimization": {
+              "scripts": true,
+              "styles": true,
+              "fonts": true
+            },
+            "allowedCommonJsDependencies": [
+              "pdfjs-dist",
               "onnxruntime-node",
-              "sharp"
+              "sharp",
+              "detect-libc"
             ]
           },
           "configurations": {

@@ -14,11 +14,14 @@ export class Embedder {
   }
   
   constructor() {
-    // Configure Transformers.js to use HuggingFace CDN
+    // Configure Transformers.js for browser environment
     env.allowRemoteModels = true;
     env.allowLocalModels = false;
     
-    // Use CDN for models (no local download needed)
+    // Disable Node.js-specific backends
+    env.backends.onnx.wasm.numThreads = 1;
+    
+    // Use CDN for WASM files
     env.backends.onnx.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/@xenova/transformers@latest/dist/';
   }
   
