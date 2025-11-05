@@ -1,0 +1,116 @@
+:host {
+  .legal-page {
+    min-height: 100vh;
+    background: #f7f9fc;
+    padding: 2rem 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  }
+
+  .legal-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 3rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  h1 {
+    color: #1a1a2e;
+    font-size: 2.5rem;
+    margin: 0 0 0.5rem 0;
+    border-bottom: 3px solid #ff6b35;
+    padding-bottom: 1rem;
+  }
+
+  .last-updated {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin: 0 0 2rem 0;
+    font-style: italic;
+  }
+
+  .legal-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .legal-section h2 {
+    color: #004e89;
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+  }
+
+  .legal-section p {
+    color: #1a1a2e;
+    line-height: 1.8;
+    margin: 1rem 0;
+  }
+
+  .legal-section ul {
+    margin: 1rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .legal-section li {
+    color: #1a1a2e;
+    line-height: 1.8;
+    margin: 0.5rem 0;
+  }
+
+  .legal-section strong {
+    color: #004e89;
+    font-weight: 600;
+  }
+
+  .legal-section a {
+    color: #004e89;
+    text-decoration: none;
+    border-bottom: 1px solid #004e89;
+    transition: all 0.3s ease;
+  }
+
+  .legal-section a:hover {
+    color: #ff6b35;
+    border-bottom-color: #ff6b35;
+  }
+
+  .back-link {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+  }
+
+  .back-link a {
+    color: #004e89;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #004e89;
+    border-radius: 8px;
+  }
+
+  .back-link a:hover {
+    background: #004e89;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 78, 137, 0.2);
+  }
+
+  @media (max-width: 768px) {
+    .legal-container {
+      padding: 2rem 1.5rem;
+    }
+    
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .legal-section h2 {
+      font-size: 1.3rem;
+    }
+  }
+}

@@ -1,0 +1,134 @@
+<div class="legal-page">
+  <div class="legal-container">
+    <h1>Privacy Policy</h1>
+    <p class="last-updated">Last Updated: {{ lastUpdated }}</p>
+    
+    <section class="legal-section">
+      <h2>1. Introduction</h2>
+      <p>
+        Welcome to WebPizza RAG POC ("we," "our," or "us"). This Privacy Policy explains how we handle your data when you use our 100% client-side AI document chat application.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>2. Data We Do NOT Collect</h2>
+      <p><strong>WebPizza is a completely client-side application. This means:</strong></p>
+      <ul>
+        <li>❌ We do NOT collect any personal information</li>
+        <li>❌ We do NOT store your documents on our servers</li>
+        <li>❌ We do NOT track your browsing activity</li>
+        <li>❌ We do NOT use cookies for tracking</li>
+        <li>❌ We do NOT send your data to third parties</li>
+        <li>❌ We do NOT have access to your uploaded PDFs or questions</li>
+      </ul>
+    </section>
+    
+    <section class="legal-section">
+      <h2>3. How WebPizza Works</h2>
+      <p>
+        All processing happens entirely in your browser using:
+      </p>
+      <ul>
+        <li><strong>WebGPU/WebAssembly:</strong> For running AI models locally on your device</li>
+        <li><strong>IndexedDB:</strong> For storing document embeddings locally in your browser</li>
+        <li><strong>Local Storage:</strong> For caching AI models to improve performance</li>
+      </ul>
+      <p>
+        Your documents and conversations <strong>never leave your device</strong>. Everything is processed locally.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>4. Local Browser Storage</h2>
+      <p>
+        WebPizza uses browser storage technologies to function:
+      </p>
+      <ul>
+        <li><strong>IndexedDB:</strong> Stores document chunks and embeddings locally</li>
+        <li><strong>Cache API/IndexedDB Cache:</strong> Stores AI models for faster loading</li>
+      </ul>
+      <p>
+        <strong>You have full control:</strong> You can clear this data at any time through your browser settings or by clearing browser cache.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>5. Third-Party AI Models</h2>
+      <p>
+        AI models are downloaded from:
+      </p>
+      <ul>
+        <li><strong>Hugging Face CDN:</strong> For LLM models (WebLLM/WeInfer)</li>
+        <li><strong>CDN providers:</strong> For embedding models and libraries</li>
+      </ul>
+      <p>
+        These downloads are one-time and cached locally. After the initial download, no further communication with these services occurs during your usage of the application.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>6. Hosting</h2>
+      <p>
+        This application is hosted on Vercel. Vercel may collect standard server logs (IP addresses, access times) for infrastructure purposes. Please refer to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel's Privacy Policy</a> for more information.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>7. Your Rights</h2>
+      <p>
+        Since we don't collect any personal data, there is no data for us to:
+      </p>
+      <ul>
+        <li>Access</li>
+        <li>Correct</li>
+        <li>Delete</li>
+        <li>Export</li>
+      </ul>
+      <p>
+        All your data is stored locally on your device and is under your complete control.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>8. Security</h2>
+      <p>
+        Because all processing happens client-side:
+      </p>
+      <ul>
+        <li>Your documents never transit over the network (except for the initial page load)</li>
+        <li>No server-side vulnerabilities can expose your data</li>
+        <li>Your data security depends on your device and browser security</li>
+      </ul>
+    </section>
+    
+    <section class="legal-section">
+      <h2>9. Children's Privacy</h2>
+      <p>
+        Our service does not collect any personal information from anyone, including children under 13.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>10. Changes to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. The "Last Updated" date at the top will reflect any changes.
+      </p>
+    </section>
+    
+    <section class="legal-section">
+      <h2>11. Contact</h2>
+      <p>
+        For questions about this Privacy Policy, please contact:
+      </p>
+      <p>
+        <strong>Emanuele Strazzullo</strong><br>
+        Website: <a href="https://emanuelestrazzullo.dev/" target="_blank" rel="noopener noreferrer">emanuelestrazzullo.dev</a><br>
+        LinkedIn: <a href="https://www.linkedin.com/in/emanuelestrazzullo/" target="_blank" rel="noopener noreferrer">linkedin.com/in/emanuelestrazzullo</a>
+      </p>
+    </section>
+    
+    <div class="back-link">
+      <a routerLink="/">← Back to WebPizza</a>
+    </div>
+  </div>
+</div>
