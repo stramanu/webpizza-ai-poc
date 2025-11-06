@@ -374,7 +374,8 @@ export class HomeComponent implements OnInit {
           this.cdr.detectChanges(); // Update UI with each token
         },
         conversationContext,
-        this.enableHybridSearch
+        this.enableHybridSearch,
+        this.enableSourceCitations
       );
       
       // Save to conversation history if memory is enabled

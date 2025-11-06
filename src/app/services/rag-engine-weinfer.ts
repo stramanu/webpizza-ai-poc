@@ -60,7 +60,8 @@ export class RagEngineWeInfer {
     question: string, 
     onToken?: (partialAnswer: string) => void,
     conversationHistory: Array<{question: string; answer: string}> = [],
-    useHybridSearch = false
+    useHybridSearch = false,
+    enableSourceCitations = false
   ): Promise<string> {
     const ragStartTime = performance.now();
     console.log('🔍 [WeInfer] RAG Query started:', question);
@@ -91,13 +92,22 @@ export class RagEngineWeInfer {
       `[${i}] Page ${r.chunk.metadata?.['pageNumber'] || '?'} (score: ${r.score.toFixed(3)}): ${r.chunk.text.substring(0, 50)}...`
     ));
     
-    // 3. Build context with citations
-    console.log('3️⃣ [WeInfer] Building context with source citations...');
-    const contextParts = searchResults.map((result, i) => {
-      const pageNum = result.chunk.metadata?.['pageNumber'] || 'unknown';
-      return `[Source ${i + 1} - Page ${pageNum}]\n${result.chunk.text}`;
-    });
-    const context = contextParts.join('\n\n');
+    // 3. Build context with or without citations
+    console.log(`3️⃣ [WeInfer] Building context ${enableSourceCitations ? 'with' : 'without'} source citations...`);
+    let context: string;
+    
+    if (enableSourceCitations) {
+      // Include page numbers in context
+      const contextParts = searchResults.map((result, i) => {
+        const pageNum = result.chunk.metadata?.['pageNumber'] || 'unknown';
+        return `[Source ${i + 1} - Page ${pageNum}]\n${result.chunk.text}`;
+      });
+      context = contextParts.join('\n\n');
+    } else {
+      // Plain context without citations
+      context = searchResults.map(r => r.chunk.text).join('\n\n');
+    }
+    
     console.log('✅ [WeInfer] Context length:', context.length, 'chars');
     
     // 4. Generate answer with WeInfer optimizations
@@ -114,14 +124,23 @@ export class RagEngineWeInfer {
       console.log(`💭 [WeInfer] Including ${conversationHistory.length} previous exchanges in context`);
     }
     
-    const prompt = `You are a helpful assistant. Answer the question based on the provided context. Always cite your sources by mentioning the page number when referencing information.${conversationContext}
+    // Build prompt with or without citation instruction
+    const citationInstruction = enableSourceCitations 
+      ? ' Always cite your sources by mentioning the page number when referencing information.' 
+      : '';
+    
+    const answerInstruction = enableSourceCitations
+      ? ' (remember to cite page numbers when referencing information)'
+      : '';
+    
+    const prompt = `You are a helpful assistant. Answer the question based on the provided context.${citationInstruction}${conversationContext}
 
 Context:
 ${context}
 
 Question: ${question}
 
-Answer (remember to cite page numbers when referencing information):`;
+Answer${answerInstruction}:`;
     const answer = await this.llm.generate(prompt, onToken);
     const llmTime = ((performance.now() - llmStart) / 1000).toFixed(2);
     

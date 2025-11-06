@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated vector store search to support hybrid mode
 - Improved logging for hybrid search scoring
 
+### Fixed
+- Source Citations flag now correctly controls citation behavior in responses
+- Context formatting and prompt instructions now respect enableSourceCitations flag
+
 ## [0.2.0] - 2025-11-06
 
 ### Added
