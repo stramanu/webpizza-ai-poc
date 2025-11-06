@@ -1,9 +1,16 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RagEngine } from '../services/rag-engine';
 import { RagEngineWeInfer } from '../services/rag-engine-weinfer';
 import { VERSION } from '../version';
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  sources?: Array<{ page: number }>;
+}
 
 @Component({
   selector: 'app-home',
@@ -13,11 +20,13 @@ import { VERSION } from '../version';
   styleUrl: './home.component.scss'
 })
 export class HomeComponent implements OnInit {
+  @ViewChild('chatContainer') chatContainer?: ElementRef;
+  
   loading = false; // Don't auto-load, wait for model selection
   uploading = false;
   querying = false;
   question = '';
-  answer = '';
+  answer = ''; // Keep for backward compatibility during transition
   initProgress = '';
   showBrowserError = false;
   browserErrorDetails = '';
@@ -40,8 +49,15 @@ export class HomeComponent implements OnInit {
   enableConversationalMemory = false;
   enableHybridSearch = false;
   
-  // Conversation History
+  // Conversation History (old format - keep for backward compatibility)
   conversationHistory: Array<{question: string; answer: string}> = [];
+  
+  // Chat Messages (new format)
+  chatMessages: ChatMessage[] = [];
+  
+  // UI State
+  showSetupSection = true;
+  shouldStopGeneration = false;
   
   // App Version
   readonly appVersion = VERSION;
@@ -134,7 +150,7 @@ export class HomeComponent implements OnInit {
     this.cdr.detectChanges();
     
     try {
-      // Subscribe to progress updates for LLM
+      // Subscribe to progress updates BEFORE initialization starts
       this.rag.llm.progress.subscribe((progress: string) => {
         if (progress) {
           console.log('LLM progress:', progress);
@@ -170,7 +186,7 @@ export class HomeComponent implements OnInit {
         }
       });
       
-      // Subscribe to embedder progress
+      // Subscribe to embedder progress BEFORE initialization starts
       this.rag.embedder.progress.subscribe((progress: string) => {
         if (progress) {
           console.log('Embedder progress:', progress);
@@ -303,9 +319,17 @@ export class HomeComponent implements OnInit {
         const totalChunks = chunks.length;
         for (const [index, chunk] of chunks.entries()) {
           const chunkNum = index + 1;
-          this.uploadStatus = `🔢 Embedding chunk ${chunkNum}/${totalChunks}...`;
+          
+          // Show preview of text being embedded (first 100 chars)
+          const textPreview = chunk.text.substring(0, 100).replace(/\n/g, ' ');
+          this.uploadStatus = `🔢 Embedding chunk ${chunkNum}/${totalChunks}: "${textPreview}${chunk.text.length > 100 ? '...' : ''}"`;
           this.uploadProgress = 30 + Math.floor((index / totalChunks) * 60);
           this.cdr.detectChanges();
+          
+          // Small delay to let UI update
+          await new Promise(resolve => setTimeout(resolve, 0));
+          
+          console.log(`🔢 Embedding chunk ${chunkNum}/${totalChunks} (page ${chunk.pageNumber})`);
           
           const embedding = await this.rag.embedder.embed(chunk.text);
           
@@ -359,10 +383,32 @@ export class HomeComponent implements OnInit {
     if (!this.question.trim()) return;
     
     this.querying = true;
+    this.shouldStopGeneration = false; // Reset stop flag
     this.answer = '';
     
     const currentQuestion = this.question;
     console.log('🚀 Starting query:', currentQuestion);
+    
+    // Add user message immediately
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: currentQuestion,
+      timestamp: new Date()
+    };
+    this.chatMessages.push(userMessage);
+    this.question = ''; // Clear input immediately
+    
+    // Add placeholder assistant message
+    const assistantMessage: ChatMessage = {
+      role: 'assistant',
+      content: '',
+      timestamp: new Date()
+    };
+    this.chatMessages.push(assistantMessage);
+    const assistantIndex = this.chatMessages.length - 1;
+    
+    this.cdr.detectChanges();
+    this.scrollToBottom();
     
     try {
       // Pass conversation history if memory is enabled
@@ -374,13 +420,27 @@ export class HomeComponent implements OnInit {
       await this.rag.query(
         currentQuestion, 
         (partialAnswer: string) => {
-          this.answer = partialAnswer;
-          this.cdr.detectChanges(); // Update UI with each token
+          if (this.shouldStopGeneration) {
+            console.log('⏹️ Generation stopped by user');
+            throw new Error('STOPPED_BY_USER');
+          }
+          this.answer = partialAnswer; // Keep for backward compatibility
+          this.chatMessages[assistantIndex].content = partialAnswer;
+          this.cdr.detectChanges();
+          this.scrollToBottom();
         },
         conversationContext,
         this.enableHybridSearch,
         this.enableSourceCitations
       );
+      
+      // Ensure final content is set (in case last callback wasn't triggered)
+      console.log('📝 Final answer length:', this.answer.length);
+      if (this.answer && this.chatMessages[assistantIndex].content !== this.answer) {
+        console.log('⚠️ Syncing final answer to chat message');
+        this.chatMessages[assistantIndex].content = this.answer;
+        this.cdr.detectChanges();
+      }
       
       // Save to conversation history if memory is enabled
       if (this.enableConversationalMemory && this.answer) {
@@ -392,21 +452,57 @@ export class HomeComponent implements OnInit {
       }
       
       console.log('✅ Query complete!');
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Query error:', error);
-      this.answer = '❌ Error querying document. Make sure you have uploaded a PDF first.';
+      if (error.message === 'STOPPED_BY_USER') {
+        console.log('⏹️ Generation stopped - keeping partial answer');
+        // Keep the partial content that was already generated
+        if (this.chatMessages[assistantIndex].content === '') {
+          this.chatMessages[assistantIndex].content = '⏹️ Generation stopped.';
+        }
+      } else {
+        console.error('❌ Unexpected error:', error);
+        this.chatMessages[assistantIndex].content = '❌ Error querying document. Make sure you have uploaded a PDF first.';
+      }
     } finally {
+      console.log('🏁 Query finished - cleaning up');
       this.querying = false;
+      this.shouldStopGeneration = false;
+      // Force one final change detection to ensure UI is updated
       this.cdr.detectChanges();
     }
   }
   
+  scrollToBottom(): void {
+    setTimeout(() => {
+      if (this.chatContainer) {
+        const element = this.chatContainer.nativeElement;
+        element.scrollTop = element.scrollHeight;
+      }
+    }, 100); // Increased delay for better DOM update timing
+  }
+  
+  stopGeneration(): void {
+    this.shouldStopGeneration = true;
+    console.log('⏹️ Stop generation requested');
+  }
+  
+  toggleSetup(): void {
+    this.showSetupSection = !this.showSetupSection;
+  }
+  
   clearConversation(): void {
     this.conversationHistory = [];
+    this.chatMessages = [];
     this.question = '';
     this.answer = '';
     console.log('🗑️ Conversation history cleared');
     this.showToastNotification('Conversation history cleared', 'success');
+  }
+  
+  getPageNumbers(sources?: Array<{ page: number }>): string {
+    if (!sources || sources.length === 0) return '';
+    return sources.map(s => s.page).join(', ');
   }
   
   getBrowserInfo(): string {

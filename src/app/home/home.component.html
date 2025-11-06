@@ -84,8 +84,15 @@
       <p class="info">First load may take a few minutes (downloading model files)</p>
     </div>
     
-    <div *ngIf="!loading" class="content-section">
-      <section class="engine-section card">
+    <div *ngIf="!loading" class="chat-layout">
+      <!-- Collapsible Setup Section -->
+      <div class="setup-section" [class.collapsed]="!showSetupSection">
+        <button class="toggle-setup-button" (click)="toggleSetup()">
+          {{ showSetupSection ? '▼' : '▶' }} {{ showSetupSection ? 'Hide' : 'Show' }} Setup
+        </button>
+        
+        <div class="setup-content" *ngIf="showSetupSection">
+          <section class="engine-section card">
         <h2>⚡ Engine Selection</h2>
         <div class="engine-selector">
           <label class="radio-label">
@@ -248,6 +255,8 @@
         
         <p class="hint">💡 Your document stays 100% local - never sent to any server</p>
       </section>
+      </div>
+    </div>
       
       <!-- Toast Notification -->
       <div *ngIf="showToast" class="toast" [class.success]="toastType === 'success'" [class.error]="toastType === 'error'">
@@ -255,46 +264,77 @@
         <span class="toast-message">{{ toastMessage }}</span>
       </div>
       
-      <section class="query-section card">
-        <h2>💬 Step 2: Ask Questions</h2>
-        <div class="query-input-group">
-          <input 
-            type="text"
-            [(ngModel)]="question"
-            placeholder="What is this document about?"
-            [disabled]="querying"
-            (keyup.enter)="onQuery()"
-            class="query-input"
-          />
-          <button 
-            (click)="onQuery()"
-            [disabled]="!question.trim() || querying"
-            class="ask-button"
-          >
-            {{ querying ? '🤔 Thinking...' : '🚀 Ask' }}
-          </button>
+      <!-- Chat Area -->
+      <div class="chat-section">
+        <div class="chat-container" #chatContainer>
+          <div *ngIf="chatMessages.length === 0" class="chat-empty-state">
+            <div class="empty-icon">💬</div>
+            <h3>Ready to chat!</h3>
+            <p>Upload a PDF document and start asking questions.</p>
+          </div>
+          
+          <div class="chat-messages">
+            <div 
+              *ngFor="let message of chatMessages" 
+              class="message-wrapper"
+              [class.user]="message.role === 'user'"
+              [class.assistant]="message.role === 'assistant'"
+            >
+              <div class="message-bubble">
+                <div class="message-content">{{ message.content }}</div>
+                <div class="message-meta">
+                  <span class="message-time">{{ message.timestamp | date:'HH:mm' }}</span>
+                  <span *ngIf="message.sources && message.sources.length > 0" class="message-sources">
+                    📄 Pages: {{ getPageNumbers(message.sources) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Typing indicator -->
+            <div *ngIf="querying" class="message-wrapper assistant">
+              <div class="message-bubble typing">
+                <div class="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <!-- Thinking Animation -->
-        <div *ngIf="querying && !answer" class="thinking-animation">
-          <div class="thinking-dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+        <!-- Fixed Input at Bottom -->
+        <div class="chat-input-container">
+          <div class="chat-input-wrapper">
+            <input 
+              type="text"
+              [(ngModel)]="question"
+              placeholder="Ask a question about your document..."
+              [disabled]="querying || !loadedDocumentName"
+              (keyup.enter)="onQuery()"
+              class="chat-input"
+            />
+            <button 
+              *ngIf="!querying"
+              (click)="onQuery()"
+              [disabled]="!question.trim() || !loadedDocumentName"
+              class="send-button"
+              [title]="!loadedDocumentName ? 'Upload a PDF first' : 'Send message'"
+            >
+              ➤
+            </button>
+            <button 
+              *ngIf="querying"
+              (click)="stopGeneration()"
+              class="stop-button"
+              title="Stop generation"
+            >
+              ⏹
+            </button>
           </div>
-          <p class="thinking-text">AI is analyzing your document...</p>
         </div>
-      </section>
-      
-      <section *ngIf="answer || querying" class="answer-section card">
-        <h2>✨ Answer:</h2>
-        <div class="answer-content">
-          <p *ngIf="answer">{{ answer }}</p>
-          <div *ngIf="querying && answer" class="streaming-indicator">
-            <span class="cursor-blink">▊</span>
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
     
     <footer class="footer">
