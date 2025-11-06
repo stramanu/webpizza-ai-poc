@@ -31,13 +31,7 @@
             },
             "allowedCommonJsDependencies": [
               "pdfjs-dist",
-              "onnxruntime-node",
-              "sharp",
-              "detect-libc"
-            ],
-            "externalDependencies": [
-              "sharp",
-              "onnxruntime-node"
+              "@xenova/transformers"
             ]
           },
           "configurations": {
