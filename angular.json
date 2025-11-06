@@ -34,6 +34,10 @@
               "onnxruntime-node",
               "sharp",
               "detect-libc"
+            ],
+            "externalDependencies": [
+              "sharp",
+              "onnxruntime-node"
             ]
           },
           "configurations": {
