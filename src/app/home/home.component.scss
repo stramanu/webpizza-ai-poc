@@ -151,6 +151,73 @@
     font-weight: 600;
   }
   
+  /* RAG Options */
+  .rag-options-section {
+    margin-bottom: 2rem;
+  }
+  
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .checkbox-label:hover:not(.disabled) {
+    border-color: var(--primary);
+    background: #fff8f5;
+  }
+  
+  .checkbox-label input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    accent-color: var(--primary);
+    margin-top: 0.125rem;
+  }
+  
+  .checkbox-label input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+  }
+  
+  .checkbox-label.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .checkbox-label:has(input:checked):not(.disabled) {
+    border-color: var(--primary);
+    background: #fff8f5;
+  }
+  
+  .checkbox-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+  }
+  
+  .checkbox-text strong {
+    color: var(--text);
+    font-size: 1rem;
+  }
+  
+  .checkbox-text small {
+    color: var(--text-light);
+    font-size: 0.875rem;
+  }
+  
   /* Upload Progress */
   .upload-progress {
     padding: 1.5rem;

@@ -34,6 +34,11 @@ export class HomeComponent implements OnInit {
   toastMessage = '';
   toastType: 'success' | 'error' = 'success';
   
+  // RAG Feature Flags
+  enableSourceCitations = false;
+  enableConversationalMemory = false; // Not yet implemented
+  enableHybridSearch = false; // Not yet implemented
+  
   constructor(
     private ragStandard: RagEngine,
     private ragWeInfer: RagEngineWeInfer,
@@ -289,19 +294,23 @@ export class HomeComponent implements OnInit {
         
         // Embed and store chunks
         const totalChunks = chunks.length;
-        for (const [index, text] of chunks.entries()) {
+        for (const [index, chunk] of chunks.entries()) {
           const chunkNum = index + 1;
           this.uploadStatus = `🔢 Embedding chunk ${chunkNum}/${totalChunks}...`;
           this.uploadProgress = 30 + Math.floor((index / totalChunks) * 60);
           this.cdr.detectChanges();
           
-          const embedding = await this.rag.embedder.embed(text);
+          const embedding = await this.rag.embedder.embed(chunk.text);
           
           await this.rag.vectorStore.addChunk({
             id: `${file.name}-${index}`,
-            text,
+            text: chunk.text,
             embedding,
-            metadata: { filename: file.name, chunkIndex: index }
+            metadata: { 
+              filename: file.name, 
+              chunkIndex: chunk.chunkIndex,
+              pageNumber: chunk.pageNumber
+            }
           });
         }
         

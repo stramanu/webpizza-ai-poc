@@ -7,6 +7,11 @@ interface Chunk {
   metadata?: Record<string, any>;
 }
 
+export interface SearchResult {
+  chunk: Chunk;
+  score: number;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -65,7 +70,7 @@ export class VectorStore {
     console.log('✅ Vector store cleared');
   }
   
-  async search(queryEmbedding: number[], topK = 5): Promise<Chunk[]> {
+  async search(queryEmbedding: number[], topK = 5): Promise<SearchResult[]> {
     if (!this.db) {
       await this.initialize();
     }
@@ -82,13 +87,16 @@ export class VectorStore {
         } else {
           console.log(`🔍 Vector store search: Found ${allChunks.length} total chunks in database`);
           // Cosine similarity
-          const scored = allChunks.map(chunk => ({
+          const scored: SearchResult[] = allChunks.map(chunk => ({
             chunk,
             score: this.cosineSimilarity(queryEmbedding, chunk.embedding)
           }));
           scored.sort((a, b) => b.score - a.score);
-          const results = scored.slice(0, topK).map(s => s.chunk);
+          const results = scored.slice(0, topK);
           console.log(`✅ Returning top ${results.length} chunks (requested ${topK})`);
+          results.forEach((r, i) => {
+            console.log(`  [${i+1}] Score: ${r.score.toFixed(3)}, Page: ${r.chunk.metadata?.['pageNumber'] || 'N/A'}`);
+          });
           resolve(results);
         }
       };

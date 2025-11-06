@@ -52,6 +52,10 @@ export class Embedder {
   }
   
   async embed(text: string): Promise<number[]> {
+    if (!this.pipe) {
+      throw new Error('Embedder not initialized. Please load a model first.');
+    }
+    
     console.log('🔢 Embedding text:', text.substring(0, 100) + '...');
     const startTime = Date.now();
     

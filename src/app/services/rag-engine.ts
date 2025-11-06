@@ -38,16 +38,20 @@ export class RagEngine {
   
   async ingest(file: File): Promise<void> {
     // 1. Parse PDF
-    const chunks = await this.parser.parseFile(file);
+    const parsedChunks = await this.parser.parseFile(file);
     
-    // 2. Embed + store
-    for (const [index, text] of chunks.entries()) {
-      const embedding = await this.embedder.embed(text);
+    // 2. Embed + store with metadata
+    for (const parsedChunk of parsedChunks) {
+      const embedding = await this.embedder.embed(parsedChunk.text);
       await this.vectorStore.addChunk({
-        id: `${file.name}-${index}`,
-        text,
+        id: `${file.name}-${parsedChunk.chunkIndex}`,
+        text: parsedChunk.text,
         embedding,
-        metadata: { filename: file.name, chunkIndex: index }
+        metadata: { 
+          filename: file.name, 
+          chunkIndex: parsedChunk.chunkIndex,
+          pageNumber: parsedChunk.pageNumber
+        }
       });
     }
   }
@@ -75,20 +79,33 @@ export class RagEngine {
     // 2. Search similar chunks
     console.log('2️⃣ Searching vector store...');
     const searchStart = performance.now();
-    const relevantChunks = await this.vectorStore.search(queryEmbedding, 3);
+    const searchResults = await this.vectorStore.search(queryEmbedding, 3);
     const searchTime = ((performance.now() - searchStart) / 1000).toFixed(2);
-    console.log(`✅ Found ${relevantChunks.length} relevant chunks in ${searchTime}s`);
-    console.log('📄 Chunks:', relevantChunks.map((c, i) => `[${i}] ${c.text.substring(0, 50)}...`));
+    console.log(`✅ Found ${searchResults.length} relevant chunks in ${searchTime}s`);
+    console.log('📄 Chunks:', searchResults.map((r, i) => 
+      `[${i}] Page ${r.chunk.metadata?.['pageNumber'] || '?'} (score: ${r.score.toFixed(3)}): ${r.chunk.text.substring(0, 50)}...`
+    ));
     
-    // 3. Build context
-    console.log('3️⃣ Building context...');
-    const context = relevantChunks.map(c => c.text).join('\n\n');
+    // 3. Build context with citations
+    console.log('3️⃣ Building context with source citations...');
+    const contextParts = searchResults.map((result, i) => {
+      const pageNum = result.chunk.metadata?.['pageNumber'] || 'unknown';
+      return `[Source ${i + 1} - Page ${pageNum}]\n${result.chunk.text}`;
+    });
+    const context = contextParts.join('\n\n');
     console.log('✅ Context length:', context.length, 'chars');
     
-    // 4. Generate answer
+    // 4. Generate answer with instruction to cite sources
     console.log('4️⃣ Generating answer with LLM...');
     const llmStart = performance.now();
-    const prompt = `Context:\n${context}\n\nQuestion: ${question}\n\nAnswer:`;
+    const prompt = `You are a helpful assistant. Answer the question based on the provided context. Always cite your sources by mentioning the page number when referencing information.
+
+Context:
+${context}
+
+Question: ${question}
+
+Answer (remember to cite page numbers when referencing information):`;
     const answer = await this.llm.generate(prompt, onToken);
     const llmTime = ((performance.now() - llmStart) / 1000).toFixed(2);
     

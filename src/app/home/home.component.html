@@ -153,18 +153,63 @@
         </div>
       </section>
       
+      <section class="rag-options-section card">
+        <h2>⚙️ RAG Options</h2>
+        <div class="options-grid">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="enableSourceCitations"
+              [disabled]="querying"
+            />
+            <span class="checkbox-text">
+              <strong>📖 Source Citations</strong>
+              <small>Show page numbers in answers</small>
+            </span>
+          </label>
+          
+          <label class="checkbox-label disabled">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="enableConversationalMemory"
+              disabled
+            />
+            <span class="checkbox-text">
+              <strong>💭 Conversational Memory</strong>
+              <small>Remember previous questions (coming soon)</small>
+            </span>
+          </label>
+          
+          <label class="checkbox-label disabled">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="enableHybridSearch"
+              disabled
+            />
+            <span class="checkbox-text">
+              <strong>🔍 Hybrid Search</strong>
+              <small>Combine semantic + keyword search (coming soon)</small>
+            </span>
+          </label>
+        </div>
+      </section>
+      
       <section class="upload-section card">
         <h2>📄 Step 1: Upload PDF Document</h2>
         
-        <div *ngIf="!uploading && !loadedDocumentName" class="upload-area">
+        <div *ngIf="!isModelLoaded" class="hint warning">
+          ⚠️ Please select and load a model first before uploading documents.
+        </div>
+        
+        <div *ngIf="!uploading && !loadedDocumentName && isModelLoaded" class="upload-area">
           <input 
             type="file" 
             id="fileInput"
             accept=".pdf" 
             (change)="onFileUpload($event)"
-            [disabled]="uploading"
+            [disabled]="uploading || !isModelLoaded"
           />
-          <label for="fileInput" class="upload-button" [class.disabled]="uploading">
+          <label for="fileInput" class="upload-button" [class.disabled]="uploading || !isModelLoaded">
             📎 Choose PDF File
           </label>
         </div>
@@ -239,14 +284,15 @@
           </div>
         </div>
       </section>
+    </div>
+    
+    <footer class="footer">
       
       <section class="tech-info">
         <p><strong>Tech Stack:</strong> Angular 20 + WebLLM/WeInfer + Transformers.js + PDF.js + IndexedDB + WebGPU</p>
         <p><strong>Privacy:</strong> 100% client-side - all processing happens in your browser via WebGPU/WASM</p>
       </section>
-    </div>
-    
-    <footer class="footer">
+
       <div class="footer-content">
         <div class="footer-links">
           <a href="/privacy-policy" class="footer-link">Privacy Policy</a>

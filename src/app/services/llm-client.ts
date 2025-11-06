@@ -82,7 +82,7 @@ export class LlmClient {
     throw error;
   }
   
-  async initialize(): Promise<void> {
+    async initialize(): Promise<void> {
     // Check if WebGPU API exists and can get an adapter
     console.log('🔍 Checking WebGPU availability...');
     console.log('🔍 navigator object:', navigator);
@@ -109,6 +109,38 @@ export class LlmClient {
       console.error('❌ Error requesting WebGPU adapter:', error);
       this.throwWebGPUError('Failed to request WebGPU adapter: ' + error);
       return;
+    }
+    
+    // Clear service worker cache to avoid version mismatches
+    if ('serviceWorker' in navigator) {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        if (registrations.length > 0) {
+          console.log('🗑️ Found', registrations.length, 'service worker(s). Clearing...');
+          for (const registration of registrations) {
+            await registration.unregister();
+          }
+          
+          // Also clear all caches
+          const cacheNames = await caches.keys();
+          if (cacheNames.length > 0) {
+            console.log('🗑️ Found', cacheNames.length, 'cache(s). Clearing...');
+            for (const cacheName of cacheNames) {
+              await caches.delete(cacheName);
+            }
+          }
+          
+          // Force reload to ensure clean state
+          console.log('🔄 Service workers cleared. Reloading page...');
+          alert('WebLLM cache cleared. The page will reload to ensure a clean state.');
+          window.location.reload();
+          return; // Stop execution
+        }
+        
+        console.log('✅ No service workers or caches to clear');
+      } catch (e) {
+        console.warn('⚠️ Could not clear service workers/caches:', e);
+      }
     }
     
     // Initialize with WebGPU
