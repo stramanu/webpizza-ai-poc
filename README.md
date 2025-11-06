@@ -21,11 +21,11 @@ Chat with your PDF documents using AI that runs entirely in your browser via Web
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Angular 20
+- **Frontend**: Angular 20.3.0
 - **LLM Engines**: 
   - WebLLM v0.2.79 (Standard)
-  - WeInfer v0.2.43 (Optimized with buffer reuse + async pipeline)
-- **Embeddings**: Transformers.js (all-MiniLM-L6-v2)
+  - WeInfer (Optimized fork with buffer reuse + async pipeline)
+- **Embeddings**: Transformers.js v2.17.2 (all-MiniLM-L6-v2)
 - **PDF Parsing**: PDF.js v5.4.296
 - **Vector Store**: IndexedDB with cosine similarity
 - **Compute**: WebGPU / WebAssembly

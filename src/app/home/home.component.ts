@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RagEngine } from '../services/rag-engine';
 import { RagEngineWeInfer } from '../services/rag-engine-weinfer';
+import { VERSION } from '../version';
 
 @Component({
   selector: 'app-home',
@@ -41,6 +42,9 @@ export class HomeComponent implements OnInit {
   
   // Conversation History
   conversationHistory: Array<{question: string; answer: string}> = [];
+  
+  // App Version
+  readonly appVersion = VERSION;
   
   constructor(
     private ragStandard: RagEngine,
