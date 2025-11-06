@@ -36,8 +36,11 @@ export class HomeComponent implements OnInit {
   
   // RAG Feature Flags
   enableSourceCitations = false;
-  enableConversationalMemory = false; // Not yet implemented
-  enableHybridSearch = false; // Not yet implemented
+  enableConversationalMemory = false;
+  enableHybridSearch = false;
+  
+  // Conversation History
+  conversationHistory: Array<{question: string; answer: string}> = [];
   
   constructor(
     private ragStandard: RagEngine,
@@ -354,14 +357,34 @@ export class HomeComponent implements OnInit {
     this.querying = true;
     this.answer = '';
     
-    console.log('🚀 Starting query:', this.question);
+    const currentQuestion = this.question;
+    console.log('🚀 Starting query:', currentQuestion);
     
     try {
+      // Pass conversation history if memory is enabled
+      const conversationContext = this.enableConversationalMemory 
+        ? this.conversationHistory 
+        : [];
+      
       // Stream tokens in real-time
-      await this.rag.query(this.question, (partialAnswer: string) => {
-        this.answer = partialAnswer;
-        this.cdr.detectChanges(); // Update UI with each token
-      });
+      await this.rag.query(
+        currentQuestion, 
+        (partialAnswer: string) => {
+          this.answer = partialAnswer;
+          this.cdr.detectChanges(); // Update UI with each token
+        },
+        conversationContext,
+        this.enableHybridSearch
+      );
+      
+      // Save to conversation history if memory is enabled
+      if (this.enableConversationalMemory && this.answer) {
+        this.conversationHistory.push({
+          question: currentQuestion,
+          answer: this.answer
+        });
+        console.log(`💭 Conversation history: ${this.conversationHistory.length} exchanges`);
+      }
       
       console.log('✅ Query complete!');
     } catch (error) {
@@ -371,6 +394,14 @@ export class HomeComponent implements OnInit {
       this.querying = false;
       this.cdr.detectChanges();
     }
+  }
+  
+  clearConversation(): void {
+    this.conversationHistory = [];
+    this.question = '';
+    this.answer = '';
+    console.log('🗑️ Conversation history cleared');
+    this.showToastNotification('Conversation history cleared', 'success');
   }
   
   getBrowserInfo(): string {

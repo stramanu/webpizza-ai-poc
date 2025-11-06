@@ -56,7 +56,12 @@ export class RagEngineWeInfer {
     }
   }
   
-  async query(question: string, onToken?: (token: string) => void): Promise<string> {
+  async query(
+    question: string, 
+    onToken?: (partialAnswer: string) => void,
+    conversationHistory: Array<{question: string; answer: string}> = [],
+    useHybridSearch = false
+  ): Promise<string> {
     const ragStartTime = performance.now();
     console.log('🔍 [WeInfer] RAG Query started:', question);
     
@@ -79,7 +84,7 @@ export class RagEngineWeInfer {
     // 2. Search similar chunks (shared vector store)
     console.log('2️⃣ [WeInfer] Searching vector store...');
     const searchStart = performance.now();
-    const searchResults = await this.vectorStore.search(queryEmbedding, 3);
+    const searchResults = await this.vectorStore.search(queryEmbedding, 3, useHybridSearch, question);
     const searchTime = ((performance.now() - searchStart) / 1000).toFixed(2);
     console.log(`✅ [WeInfer] Found ${searchResults.length} relevant chunks in ${searchTime}s`);
     console.log('📄 Chunks:', searchResults.map((r, i) => 
@@ -98,7 +103,18 @@ export class RagEngineWeInfer {
     // 4. Generate answer with WeInfer optimizations
     console.log('4️⃣ [WeInfer] Generating answer with WeInfer LLM (buffer reuse + async pipeline)...');
     const llmStart = performance.now();
-    const prompt = `You are a helpful assistant. Answer the question based on the provided context. Always cite your sources by mentioning the page number when referencing information.
+    
+    // Build conversation context if history exists
+    let conversationContext = '';
+    if (conversationHistory.length > 0) {
+      conversationContext = '\n\nPrevious conversation:\n';
+      conversationHistory.forEach((exchange, i) => {
+        conversationContext += `Q${i + 1}: ${exchange.question}\nA${i + 1}: ${exchange.answer}\n\n`;
+      });
+      console.log(`💭 [WeInfer] Including ${conversationHistory.length} previous exchanges in context`);
+    }
+    
+    const prompt = `You are a helpful assistant. Answer the question based on the provided context. Always cite your sources by mentioning the page number when referencing information.${conversationContext}
 
 Context:
 ${context}

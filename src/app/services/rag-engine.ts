@@ -56,7 +56,12 @@ export class RagEngine {
     }
   }
   
-  async query(question: string, onToken?: (token: string) => void): Promise<string> {
+    async query(
+    question: string, 
+    onToken?: (partialAnswer: string) => void,
+    conversationHistory: Array<{question: string; answer: string}> = [],
+    useHybridSearch = false
+  ): Promise<string> {
     const ragStartTime = performance.now();
     console.log('🔍 RAG Query started:', question);
     
@@ -79,7 +84,7 @@ export class RagEngine {
     // 2. Search similar chunks
     console.log('2️⃣ Searching vector store...');
     const searchStart = performance.now();
-    const searchResults = await this.vectorStore.search(queryEmbedding, 3);
+    const searchResults = await this.vectorStore.search(queryEmbedding, 3, useHybridSearch, question);
     const searchTime = ((performance.now() - searchStart) / 1000).toFixed(2);
     console.log(`✅ Found ${searchResults.length} relevant chunks in ${searchTime}s`);
     console.log('📄 Chunks:', searchResults.map((r, i) => 
@@ -98,7 +103,18 @@ export class RagEngine {
     // 4. Generate answer with instruction to cite sources
     console.log('4️⃣ Generating answer with LLM...');
     const llmStart = performance.now();
-    const prompt = `You are a helpful assistant. Answer the question based on the provided context. Always cite your sources by mentioning the page number when referencing information.
+    
+    // Build conversation context if history exists
+    let conversationContext = '';
+    if (conversationHistory.length > 0) {
+      conversationContext = '\n\nPrevious conversation:\n';
+      conversationHistory.forEach((exchange, i) => {
+        conversationContext += `Q${i + 1}: ${exchange.question}\nA${i + 1}: ${exchange.answer}\n\n`;
+      });
+      console.log(`💭 Including ${conversationHistory.length} previous exchanges in context`);
+    }
+    
+    const prompt = `You are a helpful assistant. Answer the question based on the provided context. Always cite your sources by mentioning the page number when referencing information.${conversationContext}
 
 Context:
 ${context}

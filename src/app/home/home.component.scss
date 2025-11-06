@@ -218,6 +218,43 @@
     font-size: 0.875rem;
   }
   
+  .conversation-info {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .conversation-info .hint {
+    margin: 0;
+    flex: 1;
+  }
+  
+  .clear-conversation-button {
+    padding: 0.5rem 1rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  
+  .clear-conversation-button:hover:not(:disabled) {
+    background: #c82333;
+    transform: translateY(-1px);
+  }
+  
+  .clear-conversation-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
   /* Upload Progress */
   .upload-progress {
     padding: 1.5rem;

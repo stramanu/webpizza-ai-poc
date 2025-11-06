@@ -168,29 +168,40 @@
             </span>
           </label>
           
-          <label class="checkbox-label disabled">
+          <label class="checkbox-label">
             <input 
               type="checkbox" 
               [(ngModel)]="enableConversationalMemory"
-              disabled
+              [disabled]="querying"
             />
             <span class="checkbox-text">
               <strong>💭 Conversational Memory</strong>
-              <small>Remember previous questions (coming soon)</small>
+              <small>Remember previous questions for follow-ups</small>
             </span>
           </label>
           
-          <label class="checkbox-label disabled">
+          <label class="checkbox-label">
             <input 
               type="checkbox" 
               [(ngModel)]="enableHybridSearch"
-              disabled
+              [disabled]="querying"
             />
             <span class="checkbox-text">
               <strong>🔍 Hybrid Search</strong>
-              <small>Combine semantic + keyword search (coming soon)</small>
+              <small>Combine semantic (70%) + keyword (30%) search</small>
             </span>
           </label>
+        </div>
+        
+        <div *ngIf="enableConversationalMemory && conversationHistory.length > 0" class="conversation-info">
+          <p class="hint">💭 Conversation: {{ conversationHistory.length }} exchange(s)</p>
+          <button 
+            class="clear-conversation-button" 
+            (click)="clearConversation()"
+            [disabled]="querying"
+          >
+            🗑️ Clear Conversation
+          </button>
         </div>
       </section>
       
