@@ -3,7 +3,7 @@
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://webpizza-ai-poc.vercel.app/)
 > **🚀 Live Demo**: [https://webpizza-ai-poc.vercel.app/](https://webpizza-ai-poc.vercel.app/)
 >
-> **⚠️ Experimental POC**: This is a proof-of-concept for testing purposes only. It may contain bugs and errors. Loosely inspired by [DataPizza AI](https://github.com/datapizza-ai).
+> **⚠️ Experimental POC**: This is a proof-of-concept for testing purposes only. It may contain bugs and errors. Loosely inspired by [DataPizza AI](https://github.com/datapizza-labs/datapizza-ai).
 
 **100% Client-Side AI Document Chat** - No servers, no APIs, complete privacy.
 
