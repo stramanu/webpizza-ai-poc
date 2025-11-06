@@ -1,5 +1,10 @@
 # 🍕 WebPizza RAG POC
 
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://webpizza-ai-poc.vercel.app/)
+> **🚀 Live Demo**: [https://webpizza-ai-poc.vercel.app/](https://webpizza-ai-poc.vercel.app/)
+>
+> **⚠️ Experimental POC**: This is a proof-of-concept for testing purposes only. It may contain bugs and errors. Loosely inspired by [DataPizza AI](https://github.com/datapizza-ai).
+
 **100% Client-Side AI Document Chat** - No servers, no APIs, complete privacy.
 
 Chat with your PDF documents using AI that runs entirely in your browser via WebGPU.
@@ -16,7 +21,7 @@ Chat with your PDF documents using AI that runs entirely in your browser via Web
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Angular 19
+- **Frontend**: Angular 20
 - **LLM Engines**: 
   - WebLLM v0.2.79 (Standard)
   - WeInfer v0.2.43 (Optimized with buffer reuse + async pipeline)
